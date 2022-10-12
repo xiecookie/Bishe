@@ -12,12 +12,15 @@ from copy import deepcopy
 sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '.')))
 np.random.seed(0)
 
+import os
+os.environ["CUDA_LAUNCH_BLOCKING"] = "1"
+
 def main(cfg):
     # creat folders
     os.makedirs(os.path.join(cfg.output_dir, cfg.train.val_vis_dir), exist_ok=True)
-    with open(os.path.join(cfg.output_dir, cfg.train.log_dir, 'full_config.yaml'), 'w') as f:
-        yaml.dump(cfg, f, default_flow_style=False)
-    shutil.copy(cfg.cfg_file, os.path.join(cfg.output_dir, 'config.yaml'))
+#     with open(os.path.join(cfg.output_dir, cfg.train.log_dir, 'full_config.yaml'), 'w') as f:
+#         yaml.dump(cfg, f, default_flow_style=False)
+#     shutil.copy(cfg.cfg_file, os.path.join(cfg.output_dir, 'config.yaml'))
     
     # cudnn related setting
     cudnn.benchmark = True
@@ -29,8 +32,8 @@ def main(cfg):
     from decalib.deca import DECA
     from decalib.trainer import Trainer
     cfg.rasterizer_type = 'pytorch3d'
-    deca = DECA(cfg)
-    trainer = Trainer(model=deca, config=cfg)
+    deca = DECA(cfg, device=cfg.device)
+    trainer = Trainer(model=deca, config=cfg, device = cfg.device)
 
     ## start train
     trainer.fit()
